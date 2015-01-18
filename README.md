@@ -12,5 +12,5 @@ A set of tools and resources to help teachers not suck at teaching
 
 #Info
 
-A level Configuration can be done in config.js
+A level of configuration can be done in config.js
 
