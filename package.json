@@ -1,0 +1,25 @@
+{
+  "name": "learneasy",
+  "version": "1.0.0",
+  "description": "A set of tools and resources to help teachers not suck at teaching",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.10.1",
+    "express": "^4.11.0",
+    "hbs": "^2.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/punitjajodia/learneasy"
+  },
+  "author": "Punit Jajodia, Nootan Ghimire",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/punitjajodia/learneasy/issues"
+  },
+  "homepage": "https://github.com/punitjajodia/learneasy"
+}
