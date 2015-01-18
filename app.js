@@ -26,40 +26,38 @@ app.get('/', function (req, res) {
   //res.sendFile(config.mainFile)
   //console.log("Whaat!");
   console.log(config.mainFile);
-  res.render(config.mainFile, {doctitle:config.mainTitle});
+  res.render(config.mainFile, {
+    doctitle:config.mainTitle,
+    config: config
+  });
 });
 
 //Now APIs
 
-//POST: /ls
-//Request Params:
-//  1. Path
 app.post('/ls', function(req, res){
-    var fullPath = "./" + config.contentsPath + "/" + req.body.path;
-    fs.readdir(fullPath, function(a, dirs){
-      res.send(JSON.stringify(dirs));
-    });
-
-});
-
-//POST: /cat
-// This reponds with the File contents if
-//  1. Requested path is a file
-//  2. The File type is in 'showable' list <-- TODO
-// But responds with the Directory Details if
-//  1. Requested path is a directory
-// But, If it does not exist, It responds with an error message. 
-app.post('/cat', function(req, res){
-  var fullPath = "./"  + config.contentsPath + "/" + req.body.path;
-  if(fs.statSync(fullPath).isDirectory()){
-    res.send("{error:\"This is a directory\"}");
-    return;
-  }
+  console.log(req.body.path);
+  var fullPath = req.body.path;
   if(!fs.existsSync(fullPath)) {
-    res.send("{error:\"Non-existant Path\"}");
+    res.send(JSON.stringify({type:'error', error:'Non-existant Path'}));
     return; 
   }
+  if(fs.statSync(fullPath).isDirectory()){
+    //console.log("Yap, this is it!");
+    fs.readdir(fullPath, function(a, dirs){
+      //console.log(dirs);
+      res.send(JSON.stringify({type:'dirs', list:dirs}));
+    });
+    return;
+  }
   //It's a file and it rocks!
-  res.sendFile(fullPath);
+  res.send(JSON.stringify({type:'file', filename:fullPath}));
 });
 
+app.post('/cat', function(req, res){
+  var fullPath = req.body.path;
+  if(!fs.existsSync(fullPath)) {
+    res.send("Whoops! The File Does not Exist! Or It's content is exact same ;)");
+    return;
+  }
+  res.sendFile(fullPath, {"root":__dirname});
+});

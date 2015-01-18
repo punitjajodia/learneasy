@@ -3,10 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <title>{{doctitle}}</title>
+  <script src="js/jquery-1.11.2.min.js"></script>
 </head>
 <body>
-{{{divToListFile}}}
-{{{divToShowContents}}}  
+<div id="{{config.idDivList}}" class="{{config.classDivList}}">
+  <ul>
+    <li>{{config.contentsPath}}</li>
+  </ul>
+</div>
+<div id="{{config.idDivContents}}" class="{{config.classDivContents}}">
+  <pre>
+    Psst. Nothing Here.
+  </pre>
+</div>
 </body>
-<script src="js/learneasy.js"></script>
+<script>
+  //Initial Config:
+  //var currentDir = "{{config.contentsPath}}";
+  var currentPath = "./";
+  //Initialize vars
+  var listDiv     = document.getElementById('{{config.idDivList}}');
+  var contentsDiv = document.getElementById('{{config.idDivContents}}'); 
+
+  lists = listDiv.getElementsByTagName('ul')[0];
+  contents = contentsDiv.getElementsByTagName('code')[0];
+
+  //Event Delegation: FTW
+  lists.addEventListener('click', function(e){
+    e = e || event  
+    var target = e.target || e.srcElement 
+
+    if (target.nodeName !== 'LI') return;
+
+    //send POST request to /ls
+    $.post("/ls", {path:currentPath+target.innerHTML}, function (data) {
+      if(data.type === "error"){
+        alert("Whoops! There was an error!");
+      } else if (data.type === "dirs") {
+        //alert("dirs");
+        //alert(data.list);
+        if (target.innerHTML === "..") {
+          var split = currentPath.split("/");
+          split.pop();
+          currentPath = split.join("/");
+        } else {
+          currentPath += target.innerHTML + "/";
+        }
+        lists.innerHTML = "";
+        for (var i = data.list.length - 1; i >= 0; i--) {
+               lists.innerHTML += "<li>" + data.list[i] + "</li>";
+             };     
+      } else if (data.type === "file") {
+        //alert(data.filename); //another api call to view the file
+        $.post("/cat", {path:data.filename}, function(data2){
+            //contents.innerHTML = data2;
+            $("#{{config.idDivContents}} pre").text(data2).html();
+
+        });
+      }
+    }, "json");
+
+
+  }, false);
+
+
+</script>
 </html>

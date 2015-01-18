@@ -6,7 +6,11 @@ var config = {
   whiteListedFiles: ['html', 'png', 'jpeg', 'htm', ''], /* TODO */
   contentsPath:'contents',
   mainTitle:'Learn Easy',
-  snippetsFolder:'snippets'
+  classDivList:'',
+  classDivContents:'',
+  idDivList:'list-files-folders',
+  idDivContents:'show-contents'
 };
+
 
 module.exports = config;
