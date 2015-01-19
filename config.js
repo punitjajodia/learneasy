@@ -9,7 +9,9 @@ var config = {
   classDivList:'',
   classDivContents:'',
   idDivList:'list-files-folders',
-  idDivContents:'show-contents'
+  idDivContents:'show-contents',
+  idBreadCrumbs: 'breadcrumbs',
+  classBreadCrumbs: ''
 };
 
 

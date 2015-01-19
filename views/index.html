@@ -6,7 +6,11 @@
   <script src="js/jquery-1.11.2.min.js"></script>
 </head>
 <body>
-<div id="{{config.idBreadCrumbs}}" class=".{{config.classBreadCrumbs}}"></div>
+<div id="{{config.idBreadCrumbs}}" class="{{config.classBreadCrumbs}}">
+  <ol>
+    <li class="active">Root</li>
+  </ol>
+</div>
 <div id="{{config.idDivList}}" class="{{config.classDivList}}">
   <ul>
     <li>{{config.contentsPath}}</li>
@@ -23,14 +27,38 @@
   //var currentDir = "{{config.contentsPath}}";
   var currentPath = "./";
   //Initialize vars
-  var listDiv     = document.getElementById('{{config.idDivList}}');
-  var contentsDiv = document.getElementById('{{config.idDivContents}}'); 
+  var listDiv        = document.getElementById('{{config.idDivList}}');
+  var contentsDiv    = document.getElementById('{{config.idDivContents}}'); 
+  var breadcrumbsDiv = document.getElementById('{{config.idBreadCrumbs}}'); 
 
   lists = listDiv.getElementsByTagName('ul')[0];
   contents = contentsDiv.getElementsByTagName('pre')[0];
+  breadcrumbs = breadcrumbsDiv.getElementsByTagName('ol')[0];
 
   //Check for hash
   function loadCurrentHash () {
+    if(location.hash === "#!/./") {
+      //Do not show this too.
+      location.hash = "";
+      alert("You cannot do this! :'( "); 
+    }
+    if(location.hash.indexOf("../") != -1){
+      //Someone is messing with the url
+      location.hash = "";
+      alert("Don't mess with the URL, please!");
+    }
+    if (location.hash === "#"    || 
+       location.hash === "#!"   ||
+       location.hash === "#!/") {
+      //alert("You are here?");
+      location.hash = "";
+    } else if(location.hash.substr(-1) !== "/"){
+      if(location.hash !== "") {
+        //location.hash += "/";
+      }
+    }
+
+    //alert(location.hash);
     if (location.hash !== "") {
       //There is certain hash
       var l = location.hash.substr(3);
@@ -39,11 +67,18 @@
       l = m.join("/");
       currentPath = l;
       sendRequest(folderToClick);
+    } else {
+      //currentPath = "./";
+      //sendRequest('{{config.contentsPath}}');
+      lists.innerHTML  = "<li>{{config.contentsPath}}</li>";
+      currentPath = "./"
+      breadcrumbs.innerHTML = "<li class=\"active\">Root</li>";
+
     }
   }
 
   loadCurrentHash();
-
+  loadBreadCrumb();
 
   //Event Delegation: FTW
   lists.addEventListener('click', function(e){
@@ -55,10 +90,6 @@
     sendRequest(target.innerHTML);
 
   }, false);
-
-  //TODO: See the URL changes, and act accordingly 
-  //Or use browserify
-
 
   function sendRequest(folder){
       //send POST request to /ls
@@ -93,6 +124,34 @@
 
   window.onpopstate =  function(e){
     loadCurrentHash();
+    loadBreadCrumb();
+  }
+
+  function loadBreadCrumb(){
+    //Everything must have been sanitized by loadCurrentHash();
+    if(location.hash !== ""){
+      var l  = location.hash.substr(3);
+      var m = l.split("/");
+      //alert(m);
+      breadcrumbs.innerHTML = "";
+      for (var i = 0; i <= m.length -3; i++) {
+        if(i == 0){
+          breadcrumbs.innerHTML +="<li><a href='#!'>Root</a></li>";
+          continue;
+        }
+        var n = m.slice();
+        n.splice(-(i+1));
+        //alert(n);
+        var nn  = n.join("/");
+        //nn = nn.substr(0, nn.length-1);
+        breadcrumbs.innerHTML += "<li><a href='#!/"+nn+"/'>"+m[i]+"</a></li>";
+      };
+      if(m.length == 1){
+        breadcrumbs.innerHTML += "<li class='active'>"+Root+"</li>";
+      } else {
+        breadcrumbs.innerHTML += "<li class='active'>"+m[i]+"</li>";
+      }
+    }
   }
 </script>
 </html>
