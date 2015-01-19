@@ -6,6 +6,7 @@
   <script src="js/jquery-1.11.2.min.js"></script>
 </head>
 <body>
+<div id="{{config.idBreadCrumbs}}" class=".{{config.classBreadCrumbs}}"></div>
 <div id="{{config.idDivList}}" class="{{config.classDivList}}">
   <ul>
     <li>{{config.contentsPath}}</li>
@@ -26,7 +27,23 @@
   var contentsDiv = document.getElementById('{{config.idDivContents}}'); 
 
   lists = listDiv.getElementsByTagName('ul')[0];
-  contents = contentsDiv.getElementsByTagName('code')[0];
+  contents = contentsDiv.getElementsByTagName('pre')[0];
+
+  //Check for hash
+  function loadCurrentHash () {
+    if (location.hash !== "") {
+      //There is certain hash
+      var l = location.hash.substr(3);
+      var m = l.split("/");
+      var folderToClick = m.pop();
+      l = m.join("/");
+      currentPath = l;
+      sendRequest(folderToClick);
+    }
+  }
+
+  loadCurrentHash();
+
 
   //Event Delegation: FTW
   lists.addEventListener('click', function(e){
@@ -35,20 +52,30 @@
 
     if (target.nodeName !== 'LI') return;
 
-    //send POST request to /ls
-    $.post("/ls", {path:currentPath+target.innerHTML}, function (data) {
+    sendRequest(target.innerHTML);
+
+  }, false);
+
+  //TODO: See the URL changes, and act accordingly 
+  //Or use browserify
+
+
+  function sendRequest(folder){
+      //send POST request to /ls
+    $.post("/ls", {path:currentPath+folder}, function (data) {
       if(data.type === "error"){
         alert("Whoops! There was an error!");
       } else if (data.type === "dirs") {
         //alert("dirs");
         //alert(data.list);
-        if (target.innerHTML === "..") {
+        if (folder === "..") {
           var split = currentPath.split("/");
           split.pop();
           currentPath = split.join("/");
         } else {
-          currentPath += target.innerHTML + "/";
+          currentPath += folder + "/";
         }
+        location.hash = "#!/"+currentPath;
         lists.innerHTML = "";
         for (var i = data.list.length - 1; i >= 0; i--) {
                lists.innerHTML += "<li>" + data.list[i] + "</li>";
@@ -62,10 +89,10 @@
         });
       }
     }, "json");
+  }
 
-
-  }, false);
-
-
+  window.onpopstate =  function(e){
+    loadCurrentHash();
+  }
 </script>
 </html>
